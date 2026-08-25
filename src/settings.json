@@ -1,0 +1,123 @@
+{   
+    "dataset_name": "citylearn_challenge_2022_phase_all",
+    "central_agent": true,
+    "train_episodes": 30,
+    "train_start_time_step": 0,
+    "train_end_time_step": 7671,
+    "test_start_time_step": 7672,
+    "test_end_time_step": 8759,
+
+    "include_buildings":[1],
+
+    "observations": [
+    "Month",
+    "day_type",
+    "hour",
+    "non-shiftable_load",
+    "solar_generation",
+    "electrical_storage_soc",
+    "electricity_pricing",
+    "carbon_intensity",
+
+    "outdoor_dry_bulb_temperature",
+    "outdoor_dry_bulb_temperature_predicted_6h",
+    "outdoor_dry_bulb_temperature_predicted_12h",
+    "outdoor_dry_bulb_temperature_predicted_24h",
+
+    "Outdoor_relative_humidity",
+    "outdoor_relative_humidity_predicted_6h",
+    "outdoor_relative_humidity_predicted_12h",
+    "outdoor_relative_humidity_predicted_24h",
+
+    "diffuse_solar_irradiance",
+    "diffuse_solar_irradiance_predicted_6h",
+    "diffuse_solar_irradiance_predicted_12h",
+    "diffuse_solar_irradiance_predicted_24h",
+
+    "direct_solar_irradiance",
+    "direct_solar_irradiance_predicted_6h",
+    "direct_solar_irradiance_predicted_12h",
+    "direct_solar_irradiance_predicted_24h",
+
+    "electricity_pricing",
+    "electricity_pricing_predicted_6h",
+    "electricity_pricing_predicted_12h",
+    "electricity_pricing_predicted_24h"
+    ],
+
+"drlagent": {
+    "type": "agents.td3.TD3",
+    "attributes": {
+      "hidden_dimension": [512,512],
+      "discount": 0.95,
+      "tau": 0.002,
+      "lr_c": 0.0003,
+      "lr_a": 0.0001,
+      "alpha": 0.5,
+      "batch_size": 512,
+      "replay_buffer_capacity": 1000000,
+      "start_training_time_step": 3671,
+      "end_exploration_time_step": 3671,
+      "deterministic_start_time_step": 36710,
+      "action_scaling_coef": 0.5,
+      "reward_scaling": 1,
+      "update_per_time_step": 2,
+      "policy_noise": 0.05,
+      "noise_clip": 0.15,
+      "policy_freq": 3,
+      "seed": 101
+    }
+},
+    "rbcagent":{
+        "type": "agents.refrbc.SACTOUPeakReductionFontanaRBC",
+        "attributes": null
+    },
+
+"reward_functions": {
+    "NormCCEReward": {
+        "type": "reward.reward.NormCCEReward",
+        "attributes": {
+            "grid_weight": 0.3333333333,
+            "cost_weight": 0.3333333333,
+            "emission_weight": 0.3333333333,
+
+            "avoidable_export_reference": 8.9184,
+            "net_consumption_reference": 13.84602,
+            "cost_reference": 6.923008,
+            "emission_reference": 3.198898,
+
+            "soc_min": 0.0,
+            "soc_max": 1.0,
+            "export_tariff": 0.0,
+            "terminal_soc_weight": 0.0,
+
+            "epsilon": 1e-08,
+            "validation_tolerance": 1e-06,
+            "store_diagnostic_history": false
+        }
+    }
+},
+
+    "evaluation": {
+    "schema_filename": "sac_schema_building_1_updated.json",
+    "start_time_step": 0,
+    "end_time_step": 8759,
+    "building_id": 1
+},
+
+    "experiments": {
+        "rbc_validation": {
+            "tacc_queue": "normal",
+            "type": ["agent.SelfConsumptionFontanaRBC", "agent.TOUPeakReductionFontanaRBC", "agent.TOURateOptimizationFontanaRBC"],
+            "optimal": "agents.sac.SAC"
+        },
+        "reward_design": {
+            "optimal": {
+                "type": "reward.reward.AdditiveSolarPenaltyReward",
+                "exponent": 1,
+                "weight": 1.0
+            }
+        }
+
+    }
+}
